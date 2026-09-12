@@ -75,53 +75,59 @@ window.addEventListener("scroll", () => {
 
 
 /* Gallery lightbox */
+const closeAllLightboxes = () => {
+    document.querySelectorAll(".lightbox").forEach(lightbox => lightbox.remove());
+    document.body.classList.remove("modal-open");
+    document.documentElement.classList.remove("modal-open");
+};
+
+const openLightbox = image => {
+    closeAllLightboxes();
+
+    const overlay = document.createElement("div");
+    overlay.className = "lightbox";
+
+    overlay.innerHTML = `
+        <button class="lightbox-close" aria-label="Close image view">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <img
+            src="${image.src}"
+            alt="${image.alt}"
+        >
+    `;
+
+    document.body.appendChild(overlay);
+    document.body.classList.add("modal-open");
+    document.documentElement.classList.add("modal-open");
+
+    const close = () => {
+        overlay.remove();
+
+        if (!document.querySelector(".lightbox")) {
+            document.body.classList.remove("modal-open");
+            document.documentElement.classList.remove("modal-open");
+        }
+    };
+
+    overlay.querySelector(".lightbox-close").addEventListener("click", close);
+
+    overlay.addEventListener("click", event => {
+        if (event.target === overlay) {
+            close();
+        }
+    });
+};
 
 document.querySelectorAll(".gallery-item img").forEach(image => {
-
     image.addEventListener("click", () => {
-
-        const overlay = document.createElement("div");
-
-        overlay.className = "lightbox";
-
-        overlay.innerHTML = `
-            <button class="lightbox-close">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-
-            <img
-                src="${image.src}"
-                alt="${image.alt}"
-            >
-        `;
-
-        document.body.appendChild(overlay);
-
-        document.body.style.overflow = "hidden";
-
-
-        const close = () => {
-
-            overlay.remove();
-
-            document.body.style.overflow = "";
-
-        };
-
-
-        overlay
-            .querySelector(".lightbox-close")
-            .addEventListener("click", close);
-
-
-        overlay.addEventListener("click", event => {
-
-            if (event.target === overlay) {
-                close();
-            }
-
-        });
-
+        openLightbox(image);
     });
+});
 
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        closeAllLightboxes();
+    }
 });
